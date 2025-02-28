@@ -1,0 +1,14 @@
+# Dependências do Node.js
+node_modules/
+
+# Variáveis de ambiente
+.env
+
+# Arquivos de log
+*.log
+
+# Arquivos de configuração local
+*.local
+
+# Diretórios de cache
+.cache/
