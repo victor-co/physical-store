@@ -1,9 +1,9 @@
 import express from 'express';
-import { createStore, getStores } from '../controllers/storeController';
+import { createStore, getNearbyStores } from '../controllers/storeController';
 
 const router = express.Router();
 
 router.post('/stores', createStore);
-router.get('/stores', getStores);
+router.get('/stores/nearby', getNearbyStores);
 
 export default router;
