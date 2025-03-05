@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Store, IStore } from '../models/storeModel';
 import logger from '../utils/logger';
+import { calculateDistance } from '../utils/distanceCalculator';
 
 const viaCepUrl = 'https://viacep.com.br/ws';
 const nominatimUrl = 'https://nominatim.openstreetmap.org/search';
@@ -65,6 +66,29 @@ export const addStore = async (storeData: { name: string; cep: string }): Promis
     return newStore;
   } catch (error) {
     logger.error('Erro ao adicionar loja:', error);
+    throw error;
+  }
+};
+
+export const findStoresWithinRadius = async (targetCep: string, radius: number = 100): Promise<IStore[]> => {
+  try {
+    const addressData = await getAddressByCep(targetCep);
+    const fullAddress = `${addressData.logradouro}, ${addressData.bairro}, ${addressData.localidade}, ${addressData.uf}, Brasil`;
+    const targetCoords = await getCoordinatesByAddress(fullAddress);
+
+    const stores = await Store.find();
+
+    const nearbyStores = stores.filter((store) => {
+      const distance = calculateDistance(
+        { latitude: store.latitude, longitude: store.longitude },
+        targetCoords
+      );
+      return distance <= radius;
+    });
+
+    return nearbyStores;
+  } catch (error) {
+    logger.error('Erro ao buscar lojas próximas:', error);
     throw error;
   }
 };
