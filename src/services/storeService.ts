@@ -70,7 +70,10 @@ export const addStore = async (storeData: { name: string; cep: string }): Promis
   }
 };
 
-export const findStoresWithinRadius = async (targetCep: string, radius: number = 100): Promise<IStore[]> => {
+export const findStoresWithinRadius = async (
+  targetCep: string,
+  radius: number = 100
+): Promise<{ store: IStore; distance: number }[]> => {
   try {
     const addressData = await getAddressByCep(targetCep);
     const fullAddress = `${addressData.logradouro}, ${addressData.bairro}, ${addressData.localidade}, ${addressData.uf}, Brasil`;
@@ -78,13 +81,18 @@ export const findStoresWithinRadius = async (targetCep: string, radius: number =
 
     const stores = await Store.find();
 
-    const nearbyStores = stores.filter((store) => {
-      const distance = calculateDistance(
-        { latitude: store.latitude, longitude: store.longitude },
-        targetCoords
-      );
-      return distance <= radius;
-    });
+    const nearbyStores = stores
+      .map((store) => {
+        const distance = calculateDistance(
+          { latitude: store.latitude, longitude: store.longitude },
+          targetCoords
+        );
+        return {
+          store,
+          distance: parseFloat(distance.toFixed(1)),
+        };
+      })
+      .filter(({ distance }) => distance <= radius);
 
     return nearbyStores;
   } catch (error) {

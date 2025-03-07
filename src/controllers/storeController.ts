@@ -28,8 +28,19 @@ export const getNearbyStores = async (req: Request, res: Response): Promise<void
   }
 
   try {
-    const stores = await findStoresWithinRadius(cep as string);
-    res.status(200).json(stores);
+    const nearbyStores = await findStoresWithinRadius(cep as string);
+
+    if (nearbyStores.length === 0) {
+      res.status(404).json({ message: 'Nenhuma loja encontrada dentro do raio de 100 km' });
+      return;
+    }
+
+    const formattedStores = nearbyStores.map(({ store, distance }) => ({
+      store,
+      distance: `${distance} Km`,
+    }));
+
+    res.status(200).json(formattedStores);
   } catch (error) {
     logger.error('Erro ao buscar lojas próximas:', error);
     res.status(500).json({ message: 'Erro ao buscar lojas próximas' });
