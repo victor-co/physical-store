@@ -3,6 +3,7 @@ import logger from '../utils/logger';
 import { calculateDistance } from '../utils/distanceCalculator';
 import { getAddressByCep } from './cepService';
 import { getCoordinatesByAddress } from './coordinatesService';
+import { CustomError } from '../errors/customError';
 
 export const addStore = async (storeData: { name: string; cep: string }): Promise<IStore> => {
   try {
@@ -26,8 +27,11 @@ export const addStore = async (storeData: { name: string; cep: string }): Promis
     logger.info(`Loja adicionada: ${newStore.name}`);
     return newStore;
   } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 11000) { // Verifica se tem duplicação no mongobd
+      throw new CustomError('Já existe uma loja com este CEP', 400);
+    }
     logger.error('Erro ao adicionar loja:', error);
-    throw error;
+    throw new CustomError('Erro ao adicionar loja', 500);
   }
 };
 
@@ -55,9 +59,13 @@ export const findStoresWithinRadius = async (
       })
       .filter(({ distance }) => distance <= radius);
 
+    if (nearbyStores.length === 0) {
+      throw new CustomError('Nenhuma loja encontrada dentro do raio de 100 km', 404);
+    }
+
     return nearbyStores;
   } catch (error) {
     logger.error('Erro ao buscar lojas próximas:', error);
-    throw error;
+    throw new CustomError('Erro ao buscar lojas próximas', 500);
   }
 };

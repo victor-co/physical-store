@@ -13,7 +13,7 @@ export interface IStore {
 
 const StoreSchema = new Schema<IStore>({
   name: { type: String, required: true },
-  cep: { type: String, required: true },
+  cep: { type: String, required: true, unique: true },
   street: { type: String, required: true },
   neighborhood: { type: String, required: true },
   city: { type: String, required: true },
