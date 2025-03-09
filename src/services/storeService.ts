@@ -27,7 +27,7 @@ export const addStore = async (storeData: { name: string; cep: string }): Promis
     logger.info(`Loja adicionada: ${newStore.name}`);
     return newStore;
   } catch (error) {
-    if (error instanceof Error && 'code' in error && error.code === 11000) { // Verifica se tem duplicação no mongobd
+    if (error instanceof Error && 'code' in error && error.code === 11000) {
       throw new CustomError('Já existe uma loja com este CEP', 400);
     }
     logger.error('Erro ao adicionar loja:', error);
@@ -57,7 +57,8 @@ export const findStoresWithinRadius = async (
           distance: parseFloat(distance.toFixed(1)),
         };
       })
-      .filter(({ distance }) => distance <= radius);
+      .filter(({ distance }) => distance <= radius) // filtra as lojas
+      .sort((a, b) => a.distance - b.distance); // ordenando por distancia
 
     if (nearbyStores.length === 0) {
       throw new CustomError('Nenhuma loja encontrada dentro do raio de 100 km', 404);
@@ -66,6 +67,9 @@ export const findStoresWithinRadius = async (
     return nearbyStores;
   } catch (error) {
     logger.error('Erro ao buscar lojas próximas:', error);
+    if (error instanceof CustomError) {
+      throw error;
+    }
     throw new CustomError('Erro ao buscar lojas próximas', 500);
   }
 };
