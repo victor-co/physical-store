@@ -2,7 +2,7 @@
 # node_modules/
 
 # Variáveis de ambiente
-.env
+# .env
 
 # Arquivos de log
 # *.log
