@@ -5,11 +5,6 @@ import logger from '../utils/logger';
 export const createStore = async (req: Request, res: Response): Promise<void> => {
   const { name, cep } = req.body;
 
-  if (!name || !cep) {
-    res.status(400).json({ message: 'Nome e CEP são obrigatórios' });
-    return;
-  }
-
   try {
     const store = await addStore({ name, cep });
     res.status(201).json(store);
@@ -21,11 +16,6 @@ export const createStore = async (req: Request, res: Response): Promise<void> =>
 
 export const getNearbyStores = async (req: Request, res: Response): Promise<void> => {
   const { cep } = req.query;
-
-  if (!cep) {
-    res.status(400).json({ message: 'CEP é obrigatório' });
-    return;
-  }
 
   try {
     const nearbyStores = await findStoresWithinRadius(cep as string);
