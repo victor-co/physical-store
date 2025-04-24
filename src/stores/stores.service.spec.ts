@@ -74,10 +74,6 @@ class MockStoreModel {
     lean: jest.fn().mockReturnThis(),
   });
 
-  static findById = jest.fn().mockReturnValue({
-    exec: jest.fn().mockResolvedValue(null),
-  });
-
   static countDocuments = jest.fn().mockReturnValue({
     exec: jest.fn().mockResolvedValue(0),
   });
@@ -290,14 +286,14 @@ describe('StoresService', () => {
     };
 
     it('deve retornar a loja quando encontrada', async () => {
-      MockStoreModel.findById().exec.mockResolvedValueOnce(mockStore);
+      MockStoreModel.findOne().exec.mockResolvedValueOnce(mockStore);
 
-      const result = await service.findById('VALID_ID');
+      const result = await service.findById('TEST_001');
       expect(result).toEqual(mockStore);
     });
 
     it('deve lançar erro quando loja não é encontrada', async () => {
-      MockStoreModel.findById().exec.mockResolvedValueOnce(null);
+      MockStoreModel.findOne().exec.mockResolvedValueOnce(null);
 
       await expect(service.findById('INVALID_ID')).rejects.toThrow(
         HttpException,
